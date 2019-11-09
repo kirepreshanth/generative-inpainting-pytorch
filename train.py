@@ -15,6 +15,9 @@ from data.dataset import Dataset
 from utils.tools import get_config, random_bbox, mask_image
 from utils.logger import get_logger
 
+import multiprocessing
+multiprocessing.set_start_method('spawn', True)
+
 parser = ArgumentParser()
 parser.add_argument('--config', type=str, default='configs/config.yaml',
                     help="training configuration")

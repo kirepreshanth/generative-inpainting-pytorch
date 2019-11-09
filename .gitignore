@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Model Checkpoints - This should be backed up via other channels.
+/checkpoints/*/*/*.pt
+/checkpoints/*/*/*.png

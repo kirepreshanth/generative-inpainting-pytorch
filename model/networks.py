@@ -408,7 +408,7 @@ class LocalDis(nn.Module):
         self.device_ids = device_ids
 
         self.dis_conv_module = DisConvModule(self.input_dim, self.cnum)
-        self.linear = nn.Linear(self.cnum*4*8*8, 1)
+        self.linear = nn.Linear(self.cnum*4*8*8*2, 1)
 
     def forward(self, x):
         x = self.dis_conv_module(x)
@@ -427,7 +427,7 @@ class GlobalDis(nn.Module):
         self.device_ids = device_ids
 
         self.dis_conv_module = DisConvModule(self.input_dim, self.cnum)
-        self.linear = nn.Linear(self.cnum*4*16*16, 1)
+        self.linear = nn.Linear(self.cnum*4*16*16*2, 1)
 
     def forward(self, x):
         x = self.dis_conv_module(x)
@@ -446,13 +446,15 @@ class DisConvModule(nn.Module):
         self.conv1 = dis_conv(input_dim, cnum, 5, 2, 2)
         self.conv2 = dis_conv(cnum, cnum*2, 5, 2, 2)
         self.conv3 = dis_conv(cnum*2, cnum*4, 5, 2, 2)
-        self.conv4 = dis_conv(cnum*4, cnum*4, 5, 2, 2)
+        self.conv4 = dis_conv(cnum*4, cnum*8, 5, 2, 2)
+        self.conv5 = dis_conv(cnum*8, cnum*8, 5, 2, 2)
 
     def forward(self, x):
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
         x = self.conv4(x)
+        x = self.conv5(x)
 
         return x
 

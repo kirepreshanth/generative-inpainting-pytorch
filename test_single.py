@@ -13,12 +13,12 @@ from utils.tools import get_config, random_bbox, mask_image, is_image_file, defa
 
 
 parser = ArgumentParser()
-parser.add_argument('--config', type=str, default='configs/config.yaml',
+parser.add_argument('--config', type=str, default='/home/kirepreshanth/Documents/Dissertation/generative-inpainting-pytorch/checkpoints/cityscapes/hole_benchmark/config.yaml',
                     help="training configuration")
 parser.add_argument('--seed', type=int, help='manual seed')
-parser.add_argument('--image', type=str)
-parser.add_argument('--mask', type=str, default='')
-parser.add_argument('--output', type=str, default='output.png')
+parser.add_argument('--image', type=str, default='examples/imagenet/frankfurt_000000_003025_leftImg8bit.png')
+parser.add_argument('--mask', type=str, default='')#'examples/center_mask_256.png')
+parser.add_argument('--output', type=str, default='examples/output_1.png ')
 parser.add_argument('--flow', type=str, default='')
 parser.add_argument('--checkpoint_path', type=str, default='')
 parser.add_argument('--iter', type=int, default=0)
@@ -56,7 +56,7 @@ def main():
                     # Test a single masked image with a given mask
                     x = default_loader(args.image)
                     mask = default_loader(args.mask)
-                    x = transforms.Resize(config['image_shape'][:-1])(x)
+                    #x = transforms.Resize(config['image_shape'][:-1])(x)
                     x = transforms.CenterCrop(config['image_shape'][:-1])(x)
                     mask = transforms.Resize(config['image_shape'][:-1])(mask)
                     mask = transforms.CenterCrop(config['image_shape'][:-1])(mask)
@@ -71,7 +71,7 @@ def main():
                 else:
                     # Test a single ground-truth image with a random mask
                     ground_truth = default_loader(args.image)
-                    ground_truth = transforms.Resize(config['image_shape'][:-1])(ground_truth)
+                    #ground_truth = transforms.Resize(config['image_shape'][:-1])(ground_truth)
                     ground_truth = transforms.CenterCrop(config['image_shape'][:-1])(ground_truth)
                     ground_truth = transforms.ToTensor()(ground_truth)
                     ground_truth = normalize(ground_truth)
@@ -88,7 +88,7 @@ def main():
                     checkpoint_path = args.checkpoint_path
 
                 # Define the trainer
-                netG = Generator(config['netG'], cuda, device_ids)
+                netG = Generator(config['netG'], cuda, device_ids).cuda()
                 # Resume weight
                 last_model_name = get_model_list(checkpoint_path, "gen", iteration=args.iter)
                 netG.load_state_dict(torch.load(last_model_name))
