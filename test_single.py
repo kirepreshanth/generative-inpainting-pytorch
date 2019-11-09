@@ -10,15 +10,15 @@ import torchvision.utils as vutils
 
 from model.networks import Generator
 from utils.tools import get_config, random_bbox, mask_image, is_image_file, default_loader, normalize, get_model_list
-
+from PIL import Image
 
 parser = ArgumentParser()
 parser.add_argument('--config', type=str, default='/home/kirepreshanth/Documents/Dissertation/generative-inpainting-pytorch/checkpoints/cityscapes/hole_benchmark/config.yaml',
                     help="training configuration")
 parser.add_argument('--seed', type=int, help='manual seed')
-parser.add_argument('--image', type=str, default='examples/imagenet/frankfurt_000000_003025_leftImg8bit.png')
-parser.add_argument('--mask', type=str, default='')#'examples/center_mask_256.png')
-parser.add_argument('--output', type=str, default='examples/output_1.png ')
+parser.add_argument('--image', type=str, default='/home/kirepreshanth/Documents/Dissertation/generative-inpainting-pytorch/examples/imagenet/frankfurt_000001_044787_leftImg8bit_c128x128.png')
+parser.add_argument('--mask', type=str, default='/home/kirepreshanth/Documents/Dissertation/generative-inpainting-pytorch/examples/center_mask_256.png')
+parser.add_argument('--output', type=str, default='/home/kirepreshanth/Documents/Dissertation/generative-inpainting-pytorch/examples/output_1.png')
 parser.add_argument('--flow', type=str, default='')
 parser.add_argument('--checkpoint_path', type=str, default='')
 parser.add_argument('--iter', type=int, default=0)
@@ -104,7 +104,22 @@ def main():
                 x1, x2, offset_flow = netG(x, mask)
                 inpainted_result = x2 * mask + x * (1. - mask)
 
-                vutils.save_image(inpainted_result, args.output, padding=0, normalize=True)
+                default_image = default_loader(args.image)
+                di_w, di_h = default_image.size
+                inp_hw = config['image_shape'][1]
+                offset = ((di_w - inp_hw) // 2, (di_h - inp_hw) // 2)
+                print("inpainted_result is: ", inpainted_result.size())
+                
+                
+                grid = vutils.make_grid(inpainted_result, normalize=True)                    
+                    
+                # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
+                ndarr = grid.mul_(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
+                im = Image.fromarray(ndarr)
+                
+                default_image.paste(im, offset)
+                default_image.save(args.output)
+                
                 print("Saved the inpainted result to {}".format(args.output))
                 if args.flow:
                     vutils.save_image(offset_flow, args.flow, padding=0, normalize=True)
