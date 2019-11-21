@@ -18,8 +18,10 @@ from utils.logger import get_logger
 import multiprocessing
 multiprocessing.set_start_method('spawn', True)
 
+#python train.py --config configs/config_unet_128.yaml
+
 parser = ArgumentParser()
-parser.add_argument('--config', type=str, default='configs/config.yaml',
+parser.add_argument('--config', type=str, default='configs/128/config.yaml',
                     help="training configuration")
 parser.add_argument('--seed', type=int, help='manual seed')
 
