@@ -6,6 +6,7 @@ from PIL import Image
 
 from model.helper import dis_conv
 from model.default import CoarseGenerator, FineGenerator
+from model.unet import CoarseUNetGenerator, FineUNetGenerator
 from model.fully_conv_network import CoarseFCN8Generator
 
 
@@ -21,9 +22,13 @@ class Generator(nn.Module):
         if self.architecture == 'default':
             self.coarse_generator = CoarseGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+        elif self.architecture == 'unet':
+            self.coarse_generator = CoarseUNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+            self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         elif self.architecture == 'fcn8':
             self.coarse_generator = CoarseFCN8Generator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+        
 
     def forward(self, x, mask):
         x_stage1 = self.coarse_generator(x, mask)
