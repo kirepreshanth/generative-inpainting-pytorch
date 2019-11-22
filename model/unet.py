@@ -103,7 +103,7 @@ class CoarseUNetGenerator(torch.nn.Module):
         self.device_ids = device_ids
         
         #Down Blocks
-        self.conv_block1 = ConvBlock(input_channel,64)
+        self.conv_block1 = ConvBlock(input_channel + 2,64)
         self.conv_block2 = ConvBlock(64,128)
         self.conv_block3 = ConvBlock(128,256)
         self.conv_block4 = ConvBlock(256,512)
@@ -130,7 +130,7 @@ class CoarseUNetGenerator(torch.nn.Module):
             ones = ones.cuda()
             mask = mask.cuda()
             
-        x1 = self.conv_block1(x)#torch.cat([x, ones, mask], dim=1))
+        x1 = self.conv_block1(torch.cat([x, ones, mask], dim=1))
         x = self.downsample(x1)
         x2 = self.conv_block2(x)
         x= self.downsample(x2)
@@ -158,8 +158,9 @@ class CoarseUNetGenerator(torch.nn.Module):
 
 
         x = self.last_conv(x)
+        x_stage1 = torch.clamp(x, -1., 1.)
 
-        return x
+        return x_stage1
 
 class FineUNetGenerator(torch.nn.Module):
     def __init__(self,input_channel,output_channel, use_cuda=True, device_ids=None):
@@ -169,25 +170,20 @@ class FineUNetGenerator(torch.nn.Module):
         self.device_ids = device_ids
         
         #Down Blocks
-        self.conv_block1 = ConvBlock(input_channel,64)
+        self.conv_block1 = ConvBlock(input_channel + 2,64)
         self.conv_block2 = ConvBlock(64,128)
         self.conv_block3 = ConvBlock(128,256)
         self.conv_block4 = ConvBlock(256,512)
         self.conv_block5 = ConvBlock(512,1024)
 
         # Attention Branch
-        self.pmconv_block1 = ConvBlock(input_channel,64)
-        self.pmconv_block2 = ConvBlock(64,128)
-        self.pmconv_block3 = ConvBlock(128,256)
-        self.pmconv_block4 = ConvBlock(256,512)
-        self.pmconv_block5 = ConvBlock(512,1024)
         self.contextul_attention = ContextualAttention(ksize=3, stride=1, rate=2, fuse_k=3, softmax_scale=10,
                                                        fuse=True, use_cuda=self.use_cuda, device_ids=self.device_ids)
 
-        self.pmconv_block6 = ConvBlock(1024,1024)
+        self.pmconv_block6 = ConvBlock(1024,512)
         
         #Up Blocks
-        self.conv_block6 = ConvBlock(1024+512, 512)
+        self.conv_block6 = ConvBlock(1024+1024, 512)
         self.conv_block7 = ConvBlock(512+256, 256)
         self.conv_block8 = ConvBlock(256+128, 128)
         self.conv_block9 = ConvBlock(128+64, 64)
@@ -209,7 +205,7 @@ class FineUNetGenerator(torch.nn.Module):
             mask = mask.cuda()
             
         xnow = torch.cat([x1_inpaint, ones, mask], dim=1)
-        x1 = self.conv_block1(x1_inpaint)#xnow)
+        x1 = self.conv_block1(xnow)
         x = self.downsample(x1)
         x2 = self.conv_block2(x)
         x= self.downsample(x2)
@@ -221,16 +217,19 @@ class FineUNetGenerator(torch.nn.Module):
         x_hallu = x5
         
         # attention branch        
-        
-        x5 = self.pmconv_block1(x1_inpaint)
-        x5 = self.pmconv_block2(x5)
-        x5 = self.pmconv_block3(x5)
-        x5 = self.pmconv_block4(x5)
-        x5 = self.pmconv_block5(x5)
-        x5, offset_flow = self.contextul_attention(x5, x5, mask)
-        x5 = self.pmconv_block6(x5)
+        y = self.conv_block1(xnow)
+        y = self.downsample(y)
+        y = self.conv_block2(y)
+        y= self.downsample(y)
+        y = self.conv_block3(y)
+        y, offset_flow = self.contextul_attention(y, y, mask)
+        y = self.downsample(y)
+        y = self.conv_block4(y)
+        y = self.downsample(y)
+        y = self.conv_block5(y)
+        x5 = self.pmconv_block6(y)
         pm = x5
-        x = torch.cat([x_hallu, pm], dim=1)
+        x5 = torch.cat([x_hallu, pm], dim=1)
         # Right side
         
         x = self.upsample(x5)
@@ -249,10 +248,10 @@ class FineUNetGenerator(torch.nn.Module):
         x = self.crop(x1,x)
         x = self.conv_block9(x)
 
-
         x = self.last_conv(x)
+        x_stage2 = torch.clamp(x, -1., 1.)
 
-        return x, offset_flow
+        return x_stage2, offset_flow
 
 
 ## Needs work.

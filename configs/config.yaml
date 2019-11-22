@@ -43,6 +43,7 @@ wgan_gp_lambda: 10
 netG:
   input_dim: 3
   ngf: 64
+  architecture: default
 
 netD:
   input_dim: 3

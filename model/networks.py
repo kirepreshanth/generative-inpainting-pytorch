@@ -8,6 +8,7 @@ from model.helper import dis_conv
 from model.default import CoarseGenerator, FineGenerator
 from model.unet import CoarseUNetGenerator, FineUNetGenerator
 from model.fully_conv_network import CoarseFCN8Generator
+from model.segnet import CoarseSegNetGenerator, FineSegNetGenerator
 
 
 class Generator(nn.Module):
@@ -24,9 +25,12 @@ class Generator(nn.Module):
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         elif self.architecture == 'unet':
             self.coarse_generator = CoarseUNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
-            self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+            self.fine_generator = FineUNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         elif self.architecture == 'fcn8':
             self.coarse_generator = CoarseFCN8Generator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+            self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+        elif self.architecture == 'segnet':
+            self.coarse_generator = CoarseSegNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         
 
