@@ -17,9 +17,9 @@ mask_type: hole     # hole | mosaic
 mosaic_unit_size: 12
 
 # training parameters
-expname: default
+expname: lr1e5
 cuda: True
-#gpu_ids: [3]    # set the GPU ids to use, e.g. [0] or [1, 2]
+gpu_ids: [3]    # set the GPU ids to use, e.g. [0] or [1, 2]
 num_workers: 4
 lr: 0.00001
 beta1: 0.5

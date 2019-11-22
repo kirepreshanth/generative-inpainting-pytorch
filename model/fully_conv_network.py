@@ -6,6 +6,7 @@ import functools
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision import models
 
 import numpy as np
 
@@ -101,6 +102,8 @@ class CoarseFCN8Generator(nn.Module):
             nn.Dropout2d(),
             nn.Conv2d(4096, self.n_classes, 1),
         )
+        
+        self.init_vgg16_params(models.vgg16(pretrained=True))
 
         self.score_pool4 = nn.Conv2d(512, self.n_classes, 1)
         self.score_pool3 = nn.Conv2d(256, self.n_classes, 1)
@@ -155,17 +158,6 @@ class CoarseFCN8Generator(nn.Module):
         ]
         return out.contiguous()
 
-        # else:
-        #     score_pool4 = self.score_pool4(conv4)
-        #     score_pool3 = self.score_pool3(conv3)
-        #     score = F.upsample(score, score_pool4.size()[2:])
-        #     score += score_pool4
-        #     score = F.upsample(score, score_pool3.size()[2:])
-        #     score += score_pool3
-        #     out = F.upsample(score, x.size()[2:])
-
-        # return out
-
     def init_vgg16_params(self, vgg16, copy_fc8=True):
         blocks = [
             self.conv_block1,
@@ -175,7 +167,7 @@ class CoarseFCN8Generator(nn.Module):
             self.conv_block5,
         ]
 
-        ranges = [[0, 4], [5, 9], [10, 16], [17, 23], [24, 29]]
+        ranges = [[1, 4], [5, 9], [10, 16], [17, 23], [24, 29]]
         features = list(vgg16.features.children())
 
         for idx, conv_block in enumerate(blocks):
