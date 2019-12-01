@@ -1,0 +1,46 @@
+################################################################################################################################################
+################################################# Learning Rate of 1e-05 (0.000001) ############################################################
+################################################################################################################################################
+
+conda activate py3torch
+
+# FCN8 (VGG16/19 encoder) WGAN architecture with learning rate at 1-e05 (0.00001) GPU 0 - Done
+python train.py --config configs/128/config_fcn8.yaml
+
+# UNet WGAN architecture with learning rate at 1-e05 (0.00001) GPU 1 - DONE
+python train.py --config configs/128/config_unet.yaml
+
+# SegNet (VGG16/19 encoder) WGAN architecture with learning rate at 1-e05 (0.00001) GPU 3 - Done
+python train.py --config configs/128/config_segnet.yaml
+
+
+######### DEFAULT ARCHITECTURE (varied learning rate to try and improve benchmark results)
+
+# Default WGAN architecture with learning rate at 1-e05 (0.00001) GPU 2 - Done
+python train.py --config configs/128/config_lr1e5.yaml
+
+
+######## RESULT WAS NOT VERY GOOD
+# Default WGAN architecture with learning rate at 1-e06 (0.000001) GPU 3 - BAD RESULTS FROM A FEW ITERATIONS IN, CAN TRAIN LATER
+python train.py --config configs/128/config_lr1e6.yaml
+
+
+################################################################################################################################################
+################################################# Learning Rate of 1e-04 (0.00001) #############################################################
+################################################################################################################################################
+
+conda activate py3torch
+
+# FCN8 (VGG16/19 encoder) WGAN architecture with learning rate at 1-e04 (0.0001) GPU 0 - Done
+python train.py --config configs/lr1e4/config_fcn8.yaml
+
+# UNet WGAN architecture with learning rate at 1-e04 (0.0001) GPU 1 - Done
+python train.py --config configs/lr1e4/config_unet.yaml
+
+# SegNet (VGG16/19 encoder) WGAN architecture with learning rate at 1-e04 (0.0001) GPU 3 - Done
+python train.py --config configs/lr1e4/config_segnet.yaml
+
+######### DEFAULT ARCHITECTURE
+
+# Default WGAN architecture with learning rate at 1-e04 (0.0001) GPU 2 - This was done before any of the other stuff so not needed.
+python train.py --config configs/lr1e4/config.yaml

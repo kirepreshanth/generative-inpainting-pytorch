@@ -25,7 +25,7 @@ class Generator(nn.Module):
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         elif self.architecture == 'unet':
             self.coarse_generator = CoarseUNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
-            self.fine_generator = FineUNetGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
+            self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
         elif self.architecture == 'fcn8':
             self.coarse_generator = CoarseFCN8Generator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
             self.fine_generator = FineGenerator(self.input_dim, self.cnum, self.use_cuda, self.device_ids)
